@@ -392,6 +392,8 @@ private:
         bool deduplicate,
         ReplicatedMergeTreeLogEntryData * out_log_entry = nullptr);
 
+    bool createLogEntryToMutatePart(const MergeTreeDataPart & part, Int64 mutation_version);
+
     /// Exchange parts.
 
     /** Returns an empty string if no one has a part.
