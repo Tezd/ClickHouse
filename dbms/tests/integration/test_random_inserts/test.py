@@ -9,24 +9,34 @@ import pytest
 from helpers.cluster import ClickHouseCluster
 from helpers.network import PartitionManager
 from helpers.test_tools import TSV
-from helpers.client import CommandRequest
+from helpers.client import Client, CommandRequest
 
 
 cluster = ClickHouseCluster(__file__)
 
-node1 = cluster.add_instance('node1', config_dir='configs', with_zookeeper=True, macroses={"layer": 0, "shard": 0, "replica": 1})
-node2 = cluster.add_instance('node2', config_dir='configs', with_zookeeper=True, macroses={"layer": 0, "shard": 0, "replica": 2})
+# node1 = cluster.add_instance('node1', config_dir='configs', with_zookeeper=True, macroses={"layer": 0, "shard": 0, "replica": 1})
+# node2 = cluster.add_instance('node2', config_dir='configs', with_zookeeper=True, macroses={"layer": 0, "shard": 0, "replica": 2})
+
+class ExistingInstance:
+    def __init__(self, host, port):
+        self.client = Client(host, port)
+
+    def query(self, *args, **kwargs):
+        return self.client.query(*args, **kwargs)
+
+node1 = ExistingInstance('127.0.0.1', '9001')
+node2 = ExistingInstance('127.0.0.1', '9002')
 nodes = [node1, node2]
 
 @pytest.fixture(scope="module")
 def started_cluster():
     try:
-        cluster.start()
+        # cluster.start()
         yield cluster
 
     finally:
         pass
-        cluster.shutdown()
+        # cluster.shutdown()
 
 
 def test_random_inserts(started_cluster):
